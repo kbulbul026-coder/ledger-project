@@ -121,3 +121,88 @@ def export_csv(request):
         ])
 
     return response
+
+
+
+
+@login_required
+def edit_customer(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            return redirect('customer_detail', customer_id=customer.id)
+    else:
+        form = CustomerForm(instance=customer)
+    
+    return render(request, 'ledger/edit_customer.html', {
+        'form': form,
+        'customer': customer,
+    })
+
+
+@login_required
+def delete_customer(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    
+    if request.method == 'POST':
+        customer.delete()
+        return redirect('daily_ledger')
+    
+    return render(request, 'ledger/confirm_delete.html', {
+        'object': customer,
+        'type': 'customer',
+        'name': customer.name,
+        'balance': customer.balance,
+    })
+
+
+@login_required
+def edit_transaction(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    customer = transaction.customer
+    
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, instance=transaction)
+        if form.is_valid():
+            form.save()
+            return redirect('customer_detail', customer_id=customer.id)
+    else:
+        form = TransactionForm(instance=transaction)
+    
+    return render(request, 'ledger/edit_transaction.html', {
+        'form': form,
+        'transaction': transaction,
+        'customer': customer,
+    })
+
+
+@login_required
+def delete_transaction(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    customer_id = transaction.customer.id
+    
+    if request.method == 'POST':
+        transaction.delete()
+        return redirect('customer_detail', customer_id=customer_id)
+    
+    return render(request, 'ledger/confirm_delete.html', {
+        'object': transaction,
+        'type': 'transaction',
+        'name': f"{transaction.get_transaction_type_display()} - ₹{transaction.amount}",
+        'customer_name': transaction.customer.name,
+    })
+
+
+@login_required
+def print_customer(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    transactions = customer.transactions.all()
+    
+    return render(request, 'ledger/print_customer.html', {
+        'customer': customer,
+        'transactions': transactions,
+    })
+
