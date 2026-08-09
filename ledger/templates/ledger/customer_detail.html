@@ -1,36 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <!-- हेडर + बटन -->
+    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
         <div>
             <h3 class="mb-0">{{ customer.name }}</h3>
-            <p class="text-muted mb-0">{{ customer.phone }} {% if customer.address %}• {{ customer.address }}{% endif %}</p>
+            <p class="text-muted mb-0">
+                {{ customer.phone }}
+                {% if customer.address %} • {{ customer.address }}{% endif %}
+            </p>
         </div>
-        <div>
-            <a href="{% url 'add_transaction' customer.id %}" class="btn btn-primary">+ लेन-देन जोड़ें</a>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'add_transaction' customer.id %}" class="btn btn-primary">+ लेन-देन</a>
+            <a href="{% url 'edit_customer' customer.id %}" class="btn btn-outline-secondary">एडिट</a>
+            <a href="{% url 'print_customer' customer.id %}" class="btn btn-outline-dark" target="_blank">प्रिंट</a>
+            <a href="{% url 'delete_customer' customer.id %}" class="btn btn-outline-danger">डिलीट</a>
             <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary">वापस</a>
         </div>
     </div>
 
+    <!-- बैलेंस + WhatsApp -->
     <div class="alert {% if customer.balance > 0 %}alert-danger{% elif customer.balance < 0 %}alert-success{% else %}alert-secondary{% endif %}">
         <strong>कुल बकाया:</strong> ₹ {{ customer.balance }}
+
         {% if customer.balance > 0 %}
-            <a href="https://wa.me/91{{ customer.phone }}?text=नमस्ते {{ customer.name }}, आपकी दुकान पर ₹{{ customer.balance }} की उधारी बाकी है। कृपया जल्द भुगतान करें।" 
+            <a href="https://wa.me/91{{ customer.phone }}?text=नमस्ते {{ customer.name }}, आपकी दुकान पर ₹{{ customer.balance }} की उधारी बाकी है। कृपया जल्द भुगतान करें।"
                class="btn btn-sm btn-success ms-3" target="_blank">
                 WhatsApp Reminder भेजें
             </a>
         {% endif %}
     </div>
 
+    <!-- लेन-देन टेबल -->
     <h5 class="mt-4 mb-3">सभी लेन-देन</h5>
     <div class="table-responsive">
-        <table class="table table-bordered bg-white">
+        <table class="table table-bordered bg-white align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>तारीख</th>
                     <th>प्रकार</th>
                     <th>रकम</th>
                     <th>नोट</th>
+                    <th>एक्शन</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,14 +61,19 @@
                         ₹ {{ t.amount }}
                     </td>
                     <td>{{ t.description|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'edit_transaction' t.id %}" class="btn btn-sm btn-outline-primary">एडिट</a>
+                        <a href="{% url 'delete_transaction' t.id %}" class="btn btn-sm btn-outline-danger">डिलीट</a>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center text-muted">अभी कोई लेन-देन नहीं है</td>
+                    <td colspan="5" class="text-center text-muted py-4">अभी कोई लेन-देन नहीं है</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
 </div>
 {% endblock %}
