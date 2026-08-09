@@ -163,9 +163,18 @@ def delete_transaction(request, transaction_id):
 def customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     transactions = customer.transactions.all()
+
+    whatsapp_message = (
+        f"नमस्ते {customer.name} जी,\n\n"
+        f"आपकी दुकान पर कुल ₹{customer.balance} की उधारी बाकी है।\n"
+        f"कृपया जल्द से जल्द भुगतान कर दें।\n\n"
+        f"धन्यवाद!"
+    )
+
     return render(request, 'ledger/customer_detail.html', {
         'customer': customer,
         'transactions': transactions,
+        'whatsapp_message': whatsapp_message,
     })
 
 
@@ -176,6 +185,33 @@ def print_customer(request, customer_id):
     return render(request, 'ledger/print_customer.html', {
         'customer': customer,
         'transactions': transactions,
+    })
+
+
+@login_required
+def bulk_reminder(request):
+    customers = Customer.objects.all()
+    pending_customers = []
+
+    for cust in customers:
+        if cust.balance > 0:
+            message = (
+                f"नमस्ते {cust.name} जी,%0A%0A"
+                f"आपकी दुकान पर कुल ₹{cust.balance} की उधारी बाकी है।%0A"
+                f"कृपया जल्द भुगतान कर दें।%0A%0A"
+                f"धन्यवाद!"
+            )
+            pending_customers.append({
+                'id': cust.id,
+                'name': cust.name,
+                'phone': cust.phone,
+                'balance': cust.balance,
+                'whatsapp_url': f"https://wa.me/91{cust.phone}?text={message}"
+            })
+
+    return render(request, 'ledger/bulk_reminder.html', {
+        'pending_customers': pending_customers,
+        'total_pending': len(pending_customers),
     })
 
 
