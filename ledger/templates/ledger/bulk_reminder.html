@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">बल्क WhatsApp रिमाइंडर</h3>
+        <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary">वापस</a>
+    </div>
+
+    <div class="alert alert-info">
+        कुल <strong>{{ total_pending }}</strong> ग्राहकों की उधारी बाकी है।  
+        नीचे दिए गए बटन पर क्लिक करके एक-एक करके WhatsApp खोल सकते हैं।
+    </div>
+
+    {% if pending_customers %}
+    <div class="table-responsive">
+        <table class="table table-bordered bg-white align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>ग्राहक का नाम</th>
+                    <th>फोन</th>
+                    <th>बकाया</th>
+                    <th>WhatsApp भेजें</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cust in pending_customers %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ cust.name }}</strong></td>
+                    <td>{{ cust.phone }}</td>
+                    <td class="text-danger fw-bold">₹ {{ cust.balance }}</td>
+                    <td>
+                        <a href="{{ cust.whatsapp_url }}" class="btn btn-success btn-sm" target="_blank">
+                            WhatsApp खोलें
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-success text-center">
+            कोई भी उधारी बाकी नहीं है!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
