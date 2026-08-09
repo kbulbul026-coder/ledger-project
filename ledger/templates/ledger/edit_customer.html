@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="mb-4">ग्राहक एडिट करें</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">अपडेट करें</button>
+                            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-outline-secondary">रद्द करें</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
