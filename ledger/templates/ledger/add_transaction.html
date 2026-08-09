@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="mb-1">लेन-देन जोड़ें</h4>
+                    <p class="text-muted">ग्राहक: <strong>{{ customer.name }}</strong> ({{ customer.phone }})</p>
+                    <p class="mb-4">
+                        वर्तमान बैलेंस: 
+                        <span class="{% if customer.balance > 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
+                            ₹ {{ customer.balance }}
+                        </span>
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">सेव करें</button>
+                            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-outline-secondary">वापस</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

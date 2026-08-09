@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">दुकान का दैनिक हिसाब-किताब</h3>
+        <a href="{% url 'export_csv' %}" class="btn btn-outline-success btn-sm">CSV डाउनलोड</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card bg-danger text-white p-3 shadow-sm">
+                <h5>मार्केट में कुल उधारी</h5>
+                <h2>₹ {{ total_udhaar }}</h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white p-3 shadow-sm">
+                <h5>आज की कुल रिकवरी</h5>
+                <h2>₹ {{ today_recovered }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- सर्च -->
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="नाम या फोन से सर्च करें...">
+            <button class="btn btn-primary" type="submit">सर्च</button>
+            {% if query %}
+                <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary">क्लियर</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between mb-3">
+        <h4>ग्राहक खाता सूची</h4>
+        <a href="{% url 'add_customer' %}" class="btn btn-primary">+ नया ग्राहक</a>
+    </div>
+
+    <div class="table-responsive mb-5">
+        <table class="table table-bordered align-middle bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>ग्राहक का नाम</th>
+                    <th>फोन</th>
+                    <th>कुल बकाया</th>
+                    <th>एक्शन</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td><strong>{{ customer.name }}</strong></td>
+                    <td>{{ customer.phone }}</td>
+                    <td class="{% if customer.balance > 0 %}text-danger fw-bold{% elif customer.balance < 0 %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        ₹ {{ customer.balance }}
+                    </td>
+                    <td>
+                        <a href="{% url 'add_transaction' customer.id %}" class="btn btn-sm btn-outline-dark">लेन-देन</a>
+                        <a href="{% url 'customer_detail' customer.id %}" class="btn btn-sm btn-outline-primary">विवरण</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        {% if query %}कोई मैच नहीं मिला{% else %}अभी कोई ग्राहक नहीं है{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- आज के ट्रांजैक्शन -->
+    <h4 class="mb-3">आज के लेन-देन</h4>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered bg-white">
+            <thead class="table-secondary">
+                <tr>
+                    <th>समय</th>
+                    <th>ग्राहक</th>
+                    <th>प्रकार</th>
+                    <th>रकम</th>
+                    <th>नोट</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in today_transactions %}
+                <tr>
+                    <td>{{ t.date|time:"H:i" }}</td>
+                    <td>{{ t.customer.name }}</td>
+                    <td>
+                        {% if t.transaction_type == 'GAVE' %}
+                            <span class="badge bg-danger">उधारी दी</span>
+                        {% else %}
+                            <span class="badge bg-success">जमा मिला</span>
+                        {% endif %}
+                    </td>
+                    <td class="{% if t.transaction_type == 'GAVE' %}text-danger{% else %}text-success{% endif %} fw-bold">
+                        ₹ {{ t.amount }}
+                    </td>
+                    <td>{{ t.description|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">आज अभी कोई लेन-देन नहीं हुआ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

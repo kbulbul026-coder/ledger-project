@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h4 class="card-title text-center mb-4">लॉगिन करें</h4>
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            यूजरनेम या पासवर्ड गलत है।
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">यूजरनेम</label>
+                            <input type="text" name="username" class="form-control" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">पासवर्ड</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">लॉगिन</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
