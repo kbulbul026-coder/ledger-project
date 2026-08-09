@@ -17,7 +17,7 @@
 
 1. **रिपॉजिटरी क्लोन करें:**
    ```bash
-   git clone https://github.com
+   git clone https://github.com/kbulbul026-coder/ledger-project
    cd ledger-project
    ```
 
