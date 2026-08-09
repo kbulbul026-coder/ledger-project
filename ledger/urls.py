@@ -14,5 +14,6 @@ urlpatterns = [
     path('customer/<int:customer_id>/', views.customer_detail, name='customer_detail'),
     path('customer/<int:customer_id>/print/', views.print_customer, name='print_customer'),
 
+    path('bulk-reminder/', views.bulk_reminder, name='bulk_reminder'),
     path('export-csv/', views.export_csv, name='export_csv'),
 ]
