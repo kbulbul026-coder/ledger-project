@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from .models import Customer, Transaction
+from .models import Customer, Transaction, CashEntry
 import re
 
 class CustomerForm(forms.ModelForm):
@@ -48,12 +48,37 @@ class TransactionForm(forms.ModelForm):
                 'step': '0.01',
                 'placeholder': 'रकम'
             }),
-            'transaction_type': forms.Select(attrs={
-                'class': 'form-select'
-            }),
+            'transaction_type': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'सामान का नाम / नोट'
+            }),
+            'date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['date'].initial = timezone.now().strftime('%Y-%m-%dT%H:%M')
+
+
+class CashEntryForm(forms.ModelForm):
+    class Meta:
+        model = CashEntry
+        fields = ['amount', 'entry_type', 'description', 'date']
+        widgets = {
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'placeholder': 'रकम'
+            }),
+            'entry_type': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'नोट (जैसे: सामान खरीदा, बिल आदि)'
             }),
             'date': forms.DateTimeInput(attrs={
                 'class': 'form-control',
