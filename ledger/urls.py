@@ -16,4 +16,9 @@ urlpatterns = [
 
     path('bulk-reminder/', views.bulk_reminder, name='bulk_reminder'),
     path('export-csv/', views.export_csv, name='export_csv'),
+
+    # कैशबुक
+    path('cashbook/', views.cashbook, name='cashbook'),
+    path('cashbook/add/', views.add_cash_entry, name='add_cash_entry'),
+    path('cashbook/delete/<int:entry_id>/', views.delete_cash_entry, name='delete_cash_entry'),
 ]
