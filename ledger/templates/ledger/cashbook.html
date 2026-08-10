@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="mb-0">कैशबुक</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'add_cash_entry' %}" class="btn btn-primary btn-sm">+ नई एंट्री</a>
+            <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary btn-sm">वापस</a>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-4">
+            <div class="card bg-success text-white p-2 text-center h-100">
+                <small>कैश इन</small>
+                <h5 class="mb-0">₹ {{ total_in }}</h5>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card bg-danger text-white p-2 text-center h-100">
+                <small>कैश आउट</small>
+                <h5 class="mb-0">₹ {{ total_out }}</h5>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card bg-primary text-white p-2 text-center h-100">
+                <small>नेट कैश</small>
+                <h5 class="mb-0">₹ {{ net_cash }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <form method="get" class="card card-body mb-3 p-3">
+        <div class="row g-2">
+            <div class="col-6">
+                <label class="form-label small mb-1">से तारीख</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+                <label class="form-label small mb-1">तक तारीख</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary btn-sm w-100">फिल्टर</button>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'cashbook' %}" class="btn btn-outline-secondary btn-sm w-100">रीसेट</a>
+            </div>
+        </div>
+    </form>
+
+    <h6 class="mb-2">{{ filter_label }} की एंट्रीज</h6>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm bg-white align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>समय</th>
+                    <th>प्रकार</th>
+                    <th>रकम</th>
+                    <th>नोट</th>
+                    <th width="60">एक्शन</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td class="small">{{ entry.date|date:"d M, H:i" }}</td>
+                    <td>
+                        {% if entry.entry_type == 'IN' %}
+                            <span class="badge bg-success">इन</span>
+                        {% else %}
+                            <span class="badge bg-danger">आउट</span>
+                        {% endif %}
+                    </td>
+                    <td class="{% if entry.entry_type == 'IN' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                        ₹ {{ entry.amount }}
+                    </td>
+                    <td class="small">{{ entry.description|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'delete_cash_entry' entry.id %}" class="btn btn-sm btn-outline-danger py-0 px-1">✕</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">कोई एंट्री नहीं</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
