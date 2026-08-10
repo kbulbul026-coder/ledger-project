@@ -31,7 +31,9 @@ class TransactionForm(forms.ModelForm):
                 'step': '0.01',
                 'placeholder': 'रकम'
             }),
-            'transaction_type': forms.Select(attrs={'class': 'form-select'}),
+            'transaction_type': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'description': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'सामान का नाम / नोट'
