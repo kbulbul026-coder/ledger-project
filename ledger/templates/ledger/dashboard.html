@@ -1,26 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h3 class="mb-0">दुकान का दैनिक हिसाब-किताब</h3>
+<div class="container my-3">
+
+    <!-- हेडर -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="mb-0">दुकान का दैनिक हिसाब-किताब</h4>
         <div class="d-flex gap-2">
-            <a href="{% url 'bulk_reminder' %}" class="btn btn-success btn-sm">बल्क WhatsApp रिमाइंडर</a>
-            <a href="{% url 'export_csv' %}" class="btn btn-outline-success btn-sm">CSV डाउनलोड</a>
+            <a href="{% url 'bulk_reminder' %}" class="btn btn-success btn-sm">बल्क WhatsApp</a>
+            <a href="{% url 'export_csv' %}" class="btn btn-outline-success btn-sm">CSV</a>
         </div>
     </div>
 
     <!-- टोटल कार्ड्स -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card bg-danger text-white p-3 shadow-sm">
-                <h5>मार्केट में कुल उधारी</h5>
-                <h2>₹ {{ total_udhaar }}</h2>
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <div class="card bg-danger text-white p-3 shadow-sm h-100">
+                <small>कुल उधारी</small>
+                <h4 class="mb-0">₹ {{ total_udhaar }}</h4>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card bg-success text-white p-3 shadow-sm">
-                <h5>आज की कुल रिकवरी</h5>
-                <h2>₹ {{ today_recovered }}</h2>
+        <div class="col-6">
+            <div class="card bg-success text-white p-3 shadow-sm h-100">
+                <small>आज की रिकवरी</small>
+                <h4 class="mb-0">₹ {{ today_recovered }}</h4>
             </div>
         </div>
     </div>
@@ -28,67 +30,75 @@
     <!-- सर्च -->
     <form method="get" class="mb-3">
         <div class="input-group">
-            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="नाम या फोन से सर्च करें...">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="नाम या फोन से सर्च...">
             <button class="btn btn-primary" type="submit">सर्च</button>
             {% if query %}
-                <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary">क्लियर</a>
+                <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary">✕</a>
             {% endif %}
         </div>
     </form>
 
-    <!-- डेट रेंज फिल्टर -->
-    <form method="get" class="row g-2 mb-4">
-        <div class="col-md-3">
-            <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-outline-primary w-100">फिल्टर करें</button>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary w-100">रीसेट</a>
+    <!-- डेट रेंज फिल्टर (मोबाइल फ्रेंडली) -->
+    <form method="get" class="card card-body mb-3 p-3">
+        <div class="row g-2">
+            <div class="col-6">
+                <label class="form-label small mb-1">से तारीख</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+                <label class="form-label small mb-1">तक तारीख</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary btn-sm w-100">फिल्टर करें</button>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'daily_ledger' %}" class="btn btn-outline-secondary btn-sm w-100">रीसेट</a>
+            </div>
         </div>
     </form>
 
-    <div class="d-flex justify-content-between mb-3">
-        <h4>ग्राहक खाता सूची</h4>
-        <a href="{% url 'add_customer' %}" class="btn btn-primary">+ नया ग्राहक</a>
+    <!-- ग्राहक सूची हेडर -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">ग्राहक खाता सूची</h5>
+        <a href="{% url 'add_customer' %}" class="btn btn-primary btn-sm">+ नया ग्राहक</a>
     </div>
 
-    <div class="table-responsive mb-5">
-        <table class="table table-bordered align-middle bg-white">
+    <!-- ग्राहक टेबल -->
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered table-sm align-middle bg-white">
             <thead class="table-dark">
                 <tr>
-                    <th>ग्राहक का नाम</th>
+                    <th>नाम</th>
                     <th>फोन</th>
-                    <th>कुल बकाया</th>
-                    <th>एक्शन</th>
+                    <th>बकाया</th>
+                    <th width="140">एक्शन</th>
                 </tr>
             </thead>
             <tbody>
                 {% for customer in customers %}
                 <tr>
-                    <td><strong>{{ customer.name }}</strong></td>
-                    <td>{{ customer.phone }}</td>
+                    <td>
+                        <strong>{{ customer.name }}</strong>
+                    </td>
+                    <td class="small">{{ customer.phone }}</td>
                     <td class="{% if customer.balance > 0 %}text-danger fw-bold{% elif customer.balance < 0 %}text-success fw-bold{% else %}text-muted{% endif %}">
                         ₹ {{ customer.balance }}
                     </td>
                     <td>
-                        <a href="{% url 'add_transaction' customer.id %}" class="btn btn-sm btn-outline-dark">लेन-देन</a>
-                        <a href="{% url 'customer_detail' customer.id %}" class="btn btn-sm btn-outline-primary">विवरण</a>
-                        {% if customer.balance > 0 %}
-                        <a href="https://wa.me/91{{ customer.phone }}?text=नमस्ते {{ customer.name }} जी,%0A%0Aआपकी दुकान पर कुल ₹{{ customer.balance }} की उधारी बाकी है।%0Aकृपया जल्द भुगतान कर दें।%0A%0Aधन्यवाद!"
-                           class="btn btn-sm btn-success" target="_blank">
-                            WhatsApp
-                        </a>
-                        {% endif %}
+                        <div class="d-flex flex-wrap gap-1">
+                            <a href="{% url 'add_transaction' customer.id %}" class="btn btn-sm btn-outline-dark py-0 px-1">लेन-देन</a>
+                            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-sm btn-outline-primary py-0 px-1">विवरण</a>
+                            {% if customer.balance > 0 %}
+                            <a href="https://wa.me/91{{ customer.phone }}?text=नमस्ते {{ customer.name }} जी,%0A%0Aआपकी दुकान पर कुल ₹{{ customer.balance }} की उधारी बाकी है।%0Aकृपया जल्द भुगतान कर दें।%0A%0Aधन्यवाद!"
+                               class="btn btn-sm btn-success py-0 px-1" target="_blank">WA</a>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center text-muted py-4">
+                    <td colspan="4" class="text-center text-muted py-3">
                         {% if query %}कोई मैच नहीं मिला{% else %}अभी कोई ग्राहक नहीं है{% endif %}
                     </td>
                 </tr>
@@ -97,10 +107,10 @@
         </table>
     </div>
 
-    <!-- लेन-देन लिस्ट -->
-    <h4 class="mb-3">{{ filter_label }} के लेन-देन</h4>
+    <!-- आज / फिल्टर के लेन-देन -->
+    <h5 class="mb-2">{{ filter_label }} के लेन-देन</h5>
     <div class="table-responsive">
-        <table class="table table-sm table-bordered bg-white">
+        <table class="table table-bordered table-sm bg-white">
             <thead class="table-secondary">
                 <tr>
                     <th>समय</th>
@@ -113,27 +123,28 @@
             <tbody>
                 {% for t in today_transactions %}
                 <tr>
-                    <td>{{ t.date|time:"H:i" }}</td>
-                    <td>{{ t.customer.name }}</td>
+                    <td class="small">{{ t.date|time:"H:i" }}</td>
+                    <td class="small">{{ t.customer.name }}</td>
                     <td>
                         {% if t.transaction_type == 'GAVE' %}
-                            <span class="badge bg-danger">उधारी दी</span>
+                            <span class="badge bg-danger">उधारी</span>
                         {% else %}
-                            <span class="badge bg-success">जमा मिला</span>
+                            <span class="badge bg-success">जमा</span>
                         {% endif %}
                     </td>
-                    <td class="{% if t.transaction_type == 'GAVE' %}text-danger{% else %}text-success{% endif %} fw-bold">
+                    <td class="{% if t.transaction_type == 'GAVE' %}text-danger{% else %}text-success{% endif %} fw-bold small">
                         ₹ {{ t.amount }}
                     </td>
-                    <td>{{ t.description|default:"-" }}</td>
+                    <td class="small">{{ t.description|default:"-" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center text-muted">कोई लेन-देन नहीं मिला</td>
+                    <td colspan="5" class="text-center text-muted">कोई लेन-देन नहीं</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
 </div>
 {% endblock %}
