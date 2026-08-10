@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .models import Customer, Transaction
 import re
 
@@ -25,26 +26,22 @@ class CustomerForm(forms.ModelForm):
 
     def clean_phone(self):
         phone = self.cleaned_data.get('phone', '').strip()
-        
-        # सिर्फ अंक निकालें
         digits = re.sub(r'\D', '', phone)
-        
-        # +91 या 91 हटाएँ
+
         if digits.startswith('91') and len(digits) > 10:
             digits = digits[2:]
         elif digits.startswith('0') and len(digits) > 10:
             digits = digits[1:]
-            
+
         if len(digits) != 10:
             raise ValidationError("कृपया 10 अंकों का सही फोन नंबर डालें।")
-        
-        return digits   # हमेशा 10 डिजिट सेव होगा
+        return digits
 
 
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount', 'transaction_type', 'description']
+        fields = ['amount', 'transaction_type', 'description', 'date']
         widgets = {
             'amount': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -58,4 +55,13 @@ class TransactionForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'सामान का नाम / नोट'
             }),
+            'date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['date'].initial = timezone.now().strftime('%Y-%m-%dT%H:%M')
