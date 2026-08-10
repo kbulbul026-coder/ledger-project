@@ -88,4 +88,64 @@
                     </td>
                     <td>
                         <div class="d-flex flex-wrap gap-1">
-                            <a href="{% url 'add_transaction' customer.id %}"
+                            <a href="{% url 'add_transaction' customer.id %}" class="btn btn-sm btn-outline-dark py-0 px-1">लेन-देन</a>
+                            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-sm btn-outline-primary py-0 px-1">विवरण</a>
+                            {% if customer.balance > 0 %}
+                            <a href="https://wa.me/91{{ customer.phone }}?text=नमस्ते {{ customer.name }} जी,%0A%0Aआपकी दुकान पर कुल ₹{{ customer.balance }} की उधारी बाकी है।%0Aकृपया जल्द भुगतान कर दें।%0A%0Aधन्यवाद!"
+                               class="btn btn-sm btn-success py-0 px-1" target="_blank">WA</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">
+                        {% if query %}कोई मैच नहीं मिला{% else %}अभी कोई ग्राहक नहीं है{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- आज / फिल्टर के लेन-देन -->
+    <h5 class="mb-2">{{ filter_label }} के लेन-देन</h5>
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm bg-white">
+            <thead class="table-secondary">
+                <tr>
+                    <th>समय</th>
+                    <th>ग्राहक</th>
+                    <th>प्रकार</th>
+                    <th>रकम</th>
+                    <th>नोट</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in today_transactions %}
+                <tr>
+                    <td class="small">{{ t.date|time:"H:i" }}</td>
+                    <td class="small">{{ t.customer.name }}</td>
+                    <td>
+                        {% if t.transaction_type == 'GAVE' %}
+                            <span class="badge bg-danger">उधारी</span>
+                        {% else %}
+                            <span class="badge bg-success">जमा</span>
+                        {% endif %}
+                    </td>
+                    <td class="{% if t.transaction_type == 'GAVE' %}text-danger{% else %}text-success{% endif %} fw-bold small">
+                        ₹ {{ t.amount }}
+                    </td>
+                    <td class="small">{{ t.description|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">कोई लेन-देन नहीं</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
