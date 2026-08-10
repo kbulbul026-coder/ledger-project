@@ -6,8 +6,8 @@ from django.http import HttpResponse
 from decimal import Decimal
 import csv
 
-from .models import Customer, Transaction
-from .forms import CustomerForm, TransactionForm
+from .models import Customer, Transaction, CashEntry
+from .forms import CustomerForm, TransactionForm, CashEntryForm
 
 
 @login_required
@@ -233,3 +233,61 @@ def export_csv(request):
             status
         ])
     return response
+
+
+# ==================== कैशबुक ====================
+
+@login_required
+def cashbook(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    entries = CashEntry.objects.all()
+
+    if start_date and end_date:
+        entries = entries.filter(date__date__range=[start_date, end_date])
+        filter_label = f"{start_date} से {end_date}"
+    else:
+        today = timezone.now().date()
+        entries = entries.filter(date__date=today)
+        filter_label = "आज"
+
+    total_in = entries.filter(entry_type='IN').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    total_out = entries.filter(entry_type='OUT').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    net_cash = total_in - total_out
+
+    context = {
+        'entries': entries,
+        'total_in': total_in,
+        'total_out': total_out,
+        'net_cash': net_cash,
+        'filter_label': filter_label,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
+    }
+    return render(request, 'ledger/cashbook.html', context)
+
+
+@login_required
+def add_cash_entry(request):
+    if request.method == 'POST':
+        form = CashEntryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('cashbook')
+    else:
+        form = CashEntryForm()
+    return render(request, 'ledger/add_cash_entry.html', {'form': form})
+
+
+@login_required
+def delete_cash_entry(request, entry_id):
+    entry = get_object_or_404(CashEntry, id=entry_id)
+    if request.method == 'POST':
+        entry.delete()
+        return redirect('cashbook')
+    return render(request, 'ledger/confirm_delete.html', {
+        'object': entry,
+        'type': 'cash',
+        'name': f"{entry.get_entry_type_display()} - ₹{entry.amount}",
+    })
