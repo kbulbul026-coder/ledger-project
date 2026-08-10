@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
 from decimal import Decimal
 
 class Customer(models.Model):
@@ -32,7 +33,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPES)
     description = models.CharField(max_length=255, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)   # मैन्युअली बदल सकते हैं
 
     class Meta:
         ordering = ['-date']
